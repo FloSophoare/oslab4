@@ -247,7 +247,7 @@ int scanf(const char *format,...) {
 						matchWhiteSpace(buffer, MAX_BUFFER_SIZE, &count);
 						break;
 					default:
-						if(format[i]!=buffer[count])
+						if(format[i]!=buffer[count]) //what?
 							return index/4;
 						else{
 							state=0;

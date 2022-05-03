@@ -297,44 +297,72 @@ void syscallRead(struct StackFrame *sf) {
 	}
 }
 
-void syscallReadStdIn(struct StackFrame *sf) {
-	// TODO: 完成标准输入
-	if(dev[STD_IN].value<0){
-		//TODO
-		pcb[current].regs.eax = -1;
-		return;
-	}
-	else if(dev[STD_IN].value==0){
-		//TODO
+
+void syscallReadStdIn(struct StackFrame *tf) {
+	//putString("INto IN\n");
+	
+	if (dev[STD_IN].value == 0) 
+	{ 
+		//putString("No block\n");
+		
+		dev[STD_IN].value --;
+
 		pcb[current].blocked.next = dev[STD_IN].pcb.next;
 		pcb[current].blocked.prev = &(dev[STD_IN].pcb);
 		dev[STD_IN].pcb.next = &(pcb[current].blocked);
 		(pcb[current].blocked.next)->prev = &(pcb[current].blocked);
+
 		pcb[current].state = STATE_BLOCKED;
-		pcb[current].sleepTime = -1; //to distinguish from syscallSleep
-		asm volatile ("int $0x20");
+		//call Timer to rechoose
+		asm volatile("int $0x20");
 
-	}
-	else if(dev[STD_IN].value>0){
-		//TODO
-		dev[STD_IN].value--;
-		int sel = sf->ds;
-		char * str = (char*)sf->edx;
-		int SIZE = (int)sf->ebx;
-		asm volatile ("movw %0, %%es":: "m"(sel));
-		char character = 0;
+		int size = tf->ebx; 
+		int sel = tf->ds;
+		char *str = (char*)tf->edx;
+		
 		int i = 0;
-		while (i < SIZE){
-			if (bufferHead != bufferTail){
-				character = getChar(keyBuffer[bufferHead]);
-				bufferHead = (bufferHead + 1) % MAX_KEYBUFFER_SIZE;
-				asm volatile ("movb %0, %%es:(%1)"::"r"(character),"r"(str + i));
-				i++;
-			}
-			else break;
+		char character = 0;
+		asm volatile("movw %0, %%es"::"m"(sel));
+		int flag=0;
+		if(bufferHead==bufferTail)
+		{
+			flag=1;
 		}
-		pcb[current].regs.eax = i; // return value is the number of bytes read.
-
+		for(;i < size-1;) 
+		{
+			if(bufferHead!=bufferTail)
+			{ 
+				character=getChar(keyBuffer[bufferHead]);
+				//putString("char");
+				putChar(character);
+				bufferHead=(bufferHead+1)%MAX_KEYBUFFER_SIZE;
+				if(character != 0) 
+				{
+					asm volatile("movb %0, %%es:(%1)"::"r"(character),"r"(str+i));
+					i++;
+				}
+			}
+			else
+				break;
+		}
+		//putInt(i);
+		//putString("hire\n");
+		if(flag==0)
+		{
+			asm volatile("movb $0x00, %%es:(%0)"::"r"(str+i));
+		}	
+		//putInt(i);
+		pcb[current].regs.eax = i;
+		return;
+	}
+	else 
+	{
+		if (dev[STD_IN].value < 0) 
+		{ 
+			//putString(" blocked\n");
+			pcb[current].regs.eax = -1;
+			return;
+		}
 	}
 }
 
