@@ -8,6 +8,7 @@
 #define SYS_SLEEP 4
 #define SYS_EXIT 5
 #define SYS_SEM 6
+#define SYS_GETPID 7
 
 #define STD_OUT 0
 #define STD_IN 1
@@ -45,7 +46,7 @@ void syscallExec(struct StackFrame *sf);
 void syscallSleep(struct StackFrame *sf);
 void syscallExit(struct StackFrame *sf);
 void syscallSem(struct StackFrame *sf);
-
+void syscallGetpid(struct StackFrame* sf);
 
 
 void syscallWriteStdOut(struct StackFrame *sf);
@@ -231,6 +232,9 @@ void syscallHandle(struct StackFrame *sf) {
 		case SYS_SEM:
 			syscallSem(sf);
 			break; // for SYS_SEM
+		case SYS_GETPID:
+			syscallGetpid(sf);
+			break;
 		default:break;
 	}
 }
@@ -364,6 +368,10 @@ void syscallReadStdIn(struct StackFrame *tf) {
 			return;
 		}
 	}
+}
+
+void syscallGetpid(struct StackFrame* sf){
+	pcb[current].regs.eax = pcb[current].pid;
 }
 
 void syscallFork(struct StackFrame *sf) {
@@ -515,6 +523,7 @@ void syscallSemPost(struct StackFrame *sf) {
         sem[i].pcb.prev = (sem[i].pcb.prev)->prev;
         (sem[i].pcb.prev)->next = &(sem[i].pcb);
 		pt->state = STATE_RUNNABLE;
+		//asm volatile ("int $0x20");
 	}
 	pcb[current].regs.eax = 0;
 }

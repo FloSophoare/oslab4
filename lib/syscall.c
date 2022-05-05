@@ -557,6 +557,11 @@ int str2Str2(char *string, int avail, char *buffer, int size, int *count) {
 	return 0;
 }
 
+
+pid_t  getpid(){
+	return syscall(SYS_GETPID, 0, 0, 0, 0, 0);
+}
+
 pid_t fork() {
 	return syscall(SYS_FORK, 0, 0, 0, 0, 0);
 }
