@@ -2,10 +2,11 @@
 #include "types.h"
 #define N 5
 
+//#define testScanf
 //#define testSemaphore
 //#define testPhilosopher
-//#define testReaderAndWriter
-#define testProducerAndConsumer
+#define testReaderAndWriter
+//#define testProducerAndConsumer
 
 
 
@@ -91,7 +92,7 @@ void writer(){
 
 
 #ifdef testProducerAndConsumer
-int BufferSize = 10;
+int BufferSize = 5;
 int bufercnt = 0;
 sem_t full;
 sem_t empty;
@@ -125,8 +126,9 @@ void consumer(){
 
 int uEntry(void) {
 
-	// 测试scanf	
-	/*int dec = 0;
+	// 测试scanf
+#ifdef testScanf
+	int dec = 0;
 	int hex = 0;
 	char str[6];
 	char cha = 0;
@@ -137,14 +139,18 @@ int uEntry(void) {
 		printf("Ret: %d; %c, %s, %d, %x.\n", ret, cha, str, dec, hex);
 		if (ret == 4)
 			break;
-	}*/
-	
+	}
+#endif
 	// 测试信号量
 #ifdef testSemaphore
 	printf("There is my semaphore test below! \n");
 	int i = 4;
 	sem_t sem;
-	int ret = 0;
+#ifndef testScanf
+    int ret = 0;
+#else
+    ret = 0;
+#endif
 	printf("Father Process: Semaphore Initializing.\n");
 	ret = sem_init(&sem, 0);
 	if (ret == -1) {
