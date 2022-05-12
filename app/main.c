@@ -15,7 +15,7 @@ sem_t chopstick[N];
 
 void philosopher(int i){
 	while (1){
-		if (i % 2 == 0){
+		if (i % 2 == 1){
 			printf("Philosopher  %d  thinking\n", i);
 			sleep(128);
 			sem_wait(&chopstick[i]);
@@ -50,11 +50,11 @@ void reader(){
 	pid_t pid = getpid();
 	while (1){
 		sem_wait(&mutex);
-		//sleep(128);
+		sleep(128);
 		read_count++;
 		if (read_count == 1){
-			sem_wait(&rw_mutex);
-			//sleep(128);
+			sleep(128);
+            sem_wait(&rw_mutex);
 		}
 		sleep(128);
 		sem_post(&mutex);
@@ -62,9 +62,10 @@ void reader(){
 		printf("Reader %d read,  total %d reader\n", pid, read_count);
 		sleep(128);
 		sem_wait(&mutex);
-		//sleep(128);
+		sleep(128);
 		read_count--;
 		if (read_count == 0){
+            sleep(128);
 			sem_post(&rw_mutex);
 			//sleep(128);
 		}
@@ -74,7 +75,6 @@ void reader(){
 
 	}
 }
-
 
 void writer(){
 	pid_t pid = getpid();
@@ -87,6 +87,7 @@ void writer(){
 		sleep(128);
 	}
 }
+
 
 #endif
 
@@ -224,11 +225,12 @@ int uEntry(void) {
 	//读者写者问题
 
 #ifdef testReaderAndWriter
-	sem_init(&mutex, 1);
+    sem_init(&mutex, 1);
 	sem_init(&rw_mutex, 1);
+    int order[] = {0, 3, 2, 4, 5, 1};
 	for (int i = 0; i < 6; i++){
 		if (fork() == 0){
-			if (i < 3) reader();
+			if (order[i] < 3) reader();
 			else writer();
 		}
 	}
