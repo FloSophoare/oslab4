@@ -2,11 +2,11 @@
 #include "types.h"
 #define N 5
 
-//#define testScanf
-//#define testSemaphore
-//#define testPhilosopher
+#define testScanf
+#define testSemaphore
+#define testPhilosopher
 //#define testReaderAndWriter
-#define testProducerAndConsumer
+//#define testProducerAndConsumer
 
 
 
