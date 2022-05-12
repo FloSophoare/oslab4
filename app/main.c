@@ -5,8 +5,8 @@
 //#define testScanf
 //#define testSemaphore
 //#define testPhilosopher
-#define testReaderAndWriter
-//#define testProducerAndConsumer
+//#define testReaderAndWriter
+#define testProducerAndConsumer
 
 
 
@@ -93,8 +93,7 @@ void writer(){
 
 
 #ifdef testProducerAndConsumer
-int BufferSize = 5;
-int bufercnt = 0;
+
 sem_t full;
 sem_t empty;
 sem_t mutex;
@@ -104,10 +103,15 @@ void producer(){
 	pid_t pid = getpid();
 	while (1){
 		sem_wait(&empty);
+        sleep(128);
 		sem_wait(&mutex);
+        sleep(128);
 		printf("producer %d produce\n", pid);
-		sem_post(&mutex);
+		sleep(128);
+        sem_post(&mutex);
+        sleep(128);
 		sem_post(&full);
+        sleep(128);
 	}
 }
 
@@ -116,10 +120,15 @@ void consumer(){
 	pid_t pid  = getpid();
 	while(1){
 		sem_wait(&full);
+        sleep(128);
 		sem_wait(&mutex);
+        sleep(128);
 		printf("Consumer %d consume\n", pid);
+        sleep(128);
 		sem_post(&mutex);
+        sleep(128);
 		sem_post(&empty);
+        sleep(128);
 	}
 }
 #endif
@@ -207,18 +216,31 @@ int uEntry(void) {
 	//生产者消费者问题
 
 #ifdef testProducerAndConsumer
-
+    printf("There is my producer and consumer test below!\n");
 	sem_init(&mutex, 1);
 	sem_init(&full, 0);
-	sem_init(&empty, BufferSize);
+	sem_init(&empty, 5);
 	int i = 0; 
+    int order[] = {2, 0, 4, 1, 3};
 	while (i < 5){
 		if (fork() == 0 ){
-			if (i < 4) producer();
-			else consumer();
+			if (order[i] < 4) {
+                sleep(10);
+                producer();
+                //sleep(10);
+            }
+			else {
+                sleep(10);
+                consumer();
+                //sleep(10);
+            }
 		}
 		else i++;
 	}
+    sem_destroy(&mutex);
+    sem_destroy(&empty);
+    sem_destroy(&full);
+
 
 #endif
 
